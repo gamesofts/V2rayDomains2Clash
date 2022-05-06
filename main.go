@@ -52,12 +52,10 @@ func main() {
 				continue
 			}
 
-			_, _ = file.WriteString(fmt.Sprintf("# Generated from https://github.com/v2fly/domain-list-community/tree/master/data/%s\n\n", name))
-			_, _ = file.WriteString(fmt.Sprintf("# Behavior: domain\n\n"))
 			_, _ = file.WriteString(fmt.Sprintf("payload:\n"))
 
 			for _, domain := range rules {
-				_, _ = file.WriteString(fmt.Sprintf("- \"%s\"\n", domain))
+				_, _ = file.WriteString(fmt.Sprintf("  - \"%s\"\n", domain))
 			}
 
 			_ = file.Close()
@@ -81,12 +79,10 @@ func main() {
 			continue
 		}
 
-		_, _ = file.WriteString(fmt.Sprintf("# Generated from %s\n\n", r.SourceUrl))
-		_, _ = file.WriteString(fmt.Sprintf("# Behavior: %s\n\n", r.Behavior))
 		_, _ = file.WriteString(fmt.Sprintf("payload:\n"))
 
 		for _, domain := range r.Rules {
-			_, _ = file.WriteString(fmt.Sprintf("- \"%s\"\n", domain))
+			_, _ = file.WriteString(fmt.Sprintf("  - \"%s\"\n", domain))
 		}
 
 		_ = file.Close()
