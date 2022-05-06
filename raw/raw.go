@@ -27,7 +27,7 @@ var raws = []*Raw{
 	{
 		Name:      "local-ips",
 		Behavior:  "ipcidr",
-		SourceUrl: "https://gist.githubusercontent.com/Kr328/927492746f728ac0b1c5e4b1660ca260/raw/local-ip-list.txt",
+		SourceUrl: "https://raw.githubusercontent.com/v2fly/geoip/release/text/private.txt",
 	},
 	{
 		Name:      "public-dns",
