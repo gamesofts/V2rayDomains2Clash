@@ -68,7 +68,7 @@ func main() {
 					println("Write file " + outputPath + ": " + err.Error())
 					continue
 				}
-				if os.IsNotExist(err) {
+				if os.IsNotExist(errAds) {
 					_, _ = file.WriteString(fmt.Sprintf("payload:\n"))
 				}
 				for _, domain := range rules {
