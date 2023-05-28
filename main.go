@@ -62,12 +62,15 @@ func main() {
 			
 			if tag == "ads" {
 				outputPath = path.Join(generated, fmt.Sprintf("ads.yaml"))
-				file, err := os.OpenFile(outputPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+				_, errAds := os.Stat(outputPath)
+				file, err := os.OpenFile(outputPath, os.O_CREATE|os.O_WRONLY, 0644)
 				if err != nil {
 					println("Write file " + outputPath + ": " + err.Error())
 					continue
 				}
-				_, _ = file.WriteString(fmt.Sprintf("payload:\n"))
+				if os.IsNotExist(err) {
+					_, _ = file.WriteString(fmt.Sprintf("payload:\n"))
+				}
 				for _, domain := range rules {
 					_, _ = file.WriteString(fmt.Sprintf("  - \"%s\"\n", domain))
 				}
