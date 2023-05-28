@@ -59,23 +59,6 @@ func main() {
 			}
 
 			_ = file.Close()
-			
-			if tag == "ads" {
-				outputPath = path.Join(generated, fmt.Sprintf("ads.yaml"))
-				_, errAds := os.Stat(outputPath)
-				file, err := os.OpenFile(outputPath, os.O_CREATE|os.O_WRONLY, 0644)
-				if err != nil {
-					println("Write file " + outputPath + ": " + err.Error())
-					continue
-				}
-				if os.IsNotExist(errAds) {
-					_, _ = file.WriteString(fmt.Sprintf("payload:\n"))
-				}
-				for _, domain := range rules {
-					_, _ = file.WriteString(fmt.Sprintf("  - \"%s\"\n", domain))
-				}
-				_ = file.Close()
-			}
 		}
 	}
 
