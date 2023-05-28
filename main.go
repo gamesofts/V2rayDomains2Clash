@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path"
-
 	"github.com/kr328/domains2providers/raw"
 	"github.com/kr328/domains2providers/rule"
 )
@@ -28,6 +27,10 @@ func main() {
 		os.Exit(1)
 	}
 
+	//ad
+	adMap := make(map[string]int)
+
+
 	for name := range ruleSets {
 		tags, err := rule.Resolve(ruleSets, name)
 		if err != nil {
@@ -45,6 +48,8 @@ func main() {
 				outputPath = path.Join(generated, fmt.Sprintf("%s@%s.yaml", name, tag))
 			}
 
+			
+
 			file, err := os.OpenFile(outputPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 			if err != nil {
 				println("Write file " + outputPath + ": " + err.Error())
@@ -54,10 +59,16 @@ func main() {
 
 			_, _ = file.WriteString(fmt.Sprintf("payload:\n"))
 
+			
 			for _, domain := range rules {
 				_, _ = file.WriteString(fmt.Sprintf("  - \"%s\"\n", domain))
+				if tag == "ads" {
+					adMap[domain] = 1
+				}
+				if name == "category-ads-all" {
+					adMap[domain] = 1
+				}
 			}
-
 			_ = file.Close()
 		}
 	}
@@ -87,4 +98,16 @@ func main() {
 
 		_ = file.Close()
 	}
+
+	//ad
+	var adPath = path.Join(generated, fmt.Sprintf("ads.yaml"))
+	adFile, adErr := os.OpenFile(adPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+	if adErr != nil {
+		println("Write file " + adPath + ": " + adErr.Error())
+	}
+	_, _ = adFile.WriteString(fmt.Sprintf("payload:\n"))
+	for domain := range adMap {
+		_, _ = adFile.WriteString(fmt.Sprintf("  - \"%s\"\n", domain))
+	}
+	_ = adFile.Close()
 }
