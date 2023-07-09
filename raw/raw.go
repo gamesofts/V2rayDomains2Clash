@@ -29,16 +29,6 @@ var raws = []*Raw{
 		Behavior:  "ipcidr",
 		SourceUrl: "https://raw.githubusercontent.com/v2fly/geoip/release/text/private.txt",
 	},
-	{
-		Name:      "public-dns",
-		Behavior:  "ipcidr",
-		SourceUrl: "https://gist.githubusercontent.com/Kr328/83120bec98f8596676e916fa3be969c8/raw/public-dns.txt",
-	},
-	{
-		Name:      "public-dns-domain",
-		Behavior:  "domain",
-		SourceUrl: "https://gist.githubusercontent.com/Kr328/38b9d7907d0e3e9ee1a9bacd99dfa6f4/raw/public-dns-domain.txt",
-	},
 }
 
 func LoadRawSources() ([]*RuleSet, error) {
@@ -66,7 +56,9 @@ func LoadRawSources() ([]*RuleSet, error) {
 			if line == "" {
 				continue
 			}
-
+			if strings.Contains(line, ":") {
+				continue
+			}
 			rules = append(rules, line)
 		}
 
