@@ -29,6 +29,11 @@ var raws = []*Raw{
 		Behavior:  "ipcidr",
 		SourceUrl: "https://raw.githubusercontent.com/v2fly/geoip/release/text/private.txt",
 	},
+	{
+		Name:      "ntp",
+		Behavior:  "domain",
+		SourceUrl: "https://raw.githubusercontent.com/gamesofts/clash-rules/refs/heads/master/ntp.txt",
+	},
 }
 
 func LoadRawSources() ([]*RuleSet, error) {
