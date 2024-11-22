@@ -87,7 +87,7 @@ func LoadRawSources() ([]*RuleSet, error) {
         }
 
         if raw.Behavior == "domain" {
-            // 去重，移除已包含父域名的子域名
+            // 去重，移除已包含父域名的子域名，并去除重复的域名
             rules = deduplicateDomains(rules)
 
             // 在行的起始拼接字符串
@@ -113,25 +113,34 @@ func LoadRawSources() ([]*RuleSet, error) {
 }
 
 func deduplicateDomains(domains []string) []string {
-    // 存储已包含的域名
-    included := make(map[string]struct{})
+    // 首先，移除完全相同的域名
+    uniqueDomainsMap := make(map[string]struct{})
+    for _, domain := range domains {
+        uniqueDomainsMap[domain] = struct{}{}
+    }
+
+    // 将唯一域名转换回切片
+    uniqueDomains := make([]string, 0, len(uniqueDomainsMap))
+    for domain := range uniqueDomainsMap {
+        uniqueDomains = append(uniqueDomains, domain)
+    }
 
     // 存储域名及其标签（按.分割）
     domainLabels := make(map[string][]string)
-
-    for _, domain := range domains {
+    for _, domain := range uniqueDomains {
         labels := strings.Split(domain, ".")
         domainLabels[domain] = labels
     }
 
     // 按标签数量（域名层级）排序，层级少的在前
-    sort.Slice(domains, func(i, j int) bool {
-        return len(domainLabels[domains[i]]) < len(domainLabels[domains[j]])
+    sort.Slice(uniqueDomains, func(i, j int) bool {
+        return len(domainLabels[uniqueDomains[i]]) < len(domainLabels[uniqueDomains[j]])
     })
 
+    included := make(map[string]struct{})
     var result []string
 
-    for _, domain := range domains {
+    for _, domain := range uniqueDomains {
         labels := domainLabels[domain]
         foundParent := false
         for i := 1; i < len(labels); i++ {
