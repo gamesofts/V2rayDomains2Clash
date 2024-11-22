@@ -37,7 +37,7 @@ var raws = []*Raw{
 		Name:     "cn-max",
 		Behavior: "domain",
 		SourceUrl: []string{
-			"https://raw.githubusercontent.com/v2fly/domain-list-community/refs/heads/release/cn.txt",
+			"https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/release/rule/Clash/China/China_Domain.txt",
 			"https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/ChinaMax/ChinaMax_Domain.txt",
 		},
 	},
@@ -78,19 +78,16 @@ func LoadRawSources() ([]*RuleSet, error) {
 				if line == "" || strings.HasPrefix(line, "#") {
 					continue
 				}
-				if strings.HasPrefix(line, "domain:") {
-					line = strings.TrimSpace(strings.TrimPrefix(line, "domain:"))
-					if line == "" {
-						continue
-					}
-				} else if strings.HasPrefix(line, "ipcidr:") {
-					line = strings.TrimSpace(strings.TrimPrefix(line, "ipcidr:"))
-					if line == "" {
-						continue
-					}
-				} else if strings.Contains(line, ":") {
+				else if strings.Contains(line, ":") {
 					continue
 				}
+				if raw.Behavior == "domain" {
+		                    if strings.HasPrefix(line, ".") {
+		                        line = "+" + line
+		                    } else {
+		                        line = "+." + line
+		                    }
+		                }
 				rules = append(rules, line)
 			}
 		}
