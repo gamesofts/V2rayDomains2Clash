@@ -78,7 +78,7 @@ func LoadRawSources() ([]*RuleSet, error) {
 				if line == "" || strings.HasPrefix(line, "#") {
 					continue
 				}
-				else if strings.Contains(line, ":") {
+				if strings.Contains(line, ":") {
 					continue
 				}
 				if raw.Behavior == "domain" {
