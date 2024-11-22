@@ -24,7 +24,8 @@ var raws = []*Raw{
         Name:     "cn-ips",
         Behavior: "ipcidr",
         SourceUrl: []string{
-            "https://raw.githubusercontent.com/ChanthMiao/China-IPv4-List/refs/heads/release/cn.txt",
+            "https://raw.githubusercontent.com/ChanthMiao/China-IPv4-List/release/cn.txt",
+            "https://raw.githubusercontent.com/ChanthMiao/China-IPv6-List/release/cn6.txt",
         },
     },
     {
@@ -38,8 +39,8 @@ var raws = []*Raw{
         Name:     "cn-max",
         Behavior: "domain",
         SourceUrl: []string{
-            "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/release/rule/Clash/China/China_Domain.txt",
-            "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/ChinaMax/ChinaMax_Domain.txt",
+            "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/China/China_Domain.txt",
+            "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ChinaMax/ChinaMax_Domain.txt",
         },
     },
     {
