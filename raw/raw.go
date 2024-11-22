@@ -22,7 +22,7 @@ var raws = []*Raw{
 	{
 		Name:      "cn-ips",
 		Behavior:  "ipcidr",
-		SourceUrl: "https://raw.githubusercontent.com/v2fly/geoip/release/text/cn.txt",
+		SourceUrl: "https://raw.githubusercontent.com/ChanthMiao/China-IPv4-List/refs/heads/release/cn.txt",
 	},
 	{
 		Name:      "local-ips",
