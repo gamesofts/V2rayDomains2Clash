@@ -80,9 +80,6 @@ func LoadRawSources() ([]*RuleSet, error) {
                 if line == "" || strings.HasPrefix(line, "#") {
                     continue
                 }
-                if strings.Contains(line, ":") {
-                    continue
-                }
                 rules = append(rules, line)
             }
         }
