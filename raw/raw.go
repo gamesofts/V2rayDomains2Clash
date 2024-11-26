@@ -50,6 +50,13 @@ var raws = []*Raw{
             "https://raw.githubusercontent.com/gamesofts/clash-rules/refs/heads/master/ntp.txt",
         },
     },
+    {
+        Name:     "ad-max",
+        Behavior: "domain",
+        SourceUrl: []string{
+            "https://raw.githubusercontent.com/gamesofts/clash-rules/refs/heads/master/adguard.txt",
+        },
+    },
 }
 
 func LoadRawSources() ([]*RuleSet, error) {
