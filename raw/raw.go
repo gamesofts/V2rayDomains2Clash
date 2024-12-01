@@ -36,19 +36,11 @@ var raws = []*Raw{
         },
     },
     {
-        Name:     "direct",
+        Name:     "cn-max",
         Behavior: "domain",
         SourceUrl: []string{
-            "https://raw.githubusercontent.com/v2fly/domain-list-community/release/cn.txt",
+            "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/China/China_Domain.txt",
             "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ChinaMax/ChinaMax_Domain.txt",
-        },
-    },
-    {
-        Name:     "proxy",
-        Behavior: "domain",
-        SourceUrl: []string{
-            "https://raw.githubusercontent.com/v2fly/domain-list-community/release/geolocation-!cn.txt",
-            "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Global/Global_Domain.txt",
         },
     },
     {
@@ -138,13 +130,9 @@ func processDomainRules(rules []string) []string {
     // Deduplicate domains by removing subdomains included in parent domains
     deduplicatedDomains := deduplicateDomains(uniqueDomains)
 
-    // Prefix '+' or '+.'
+    // Prefix '+.'
     for i, domain := range deduplicatedDomains {
-        if strings.HasPrefix(domain, ".") {
-            deduplicatedDomains[i] = "+" + domain
-        } else {
-            deduplicatedDomains[i] = "+." + domain
-        }
+        deduplicatedDomains[i] = "+." + domain
     }
 
     // Sort
@@ -169,11 +157,15 @@ func processDomainLine(line string) string {
             break
         }
     }
-    // Remove suffixes starting with '@'
-    if idx := strings.Index(line, "@"); idx != -1 {
+    // Remove suffixes starting with ':@'
+    if idx := strings.Index(line, ":@"); idx != -1 {
         line = line[:idx]
     }
     line = strings.TrimSpace(line)
+    // if line starts with '.', remove it
+    if strings.HasPrefix(line, ".") {
+        line = strings.TrimPrefix(line, ".")
+    }
     return line
 }
 
@@ -200,7 +192,7 @@ func deduplicateDomains(domains []string) []string {
     for _, domain := range uniqueDomains {
         include := true
         for _, existing := range result {
-            if strings.HasSuffix(domain, "."+existing) || domain == existing {
+            if domain == existing || strings.HasSuffix(domain, "."+existing) {
                 include = false
                 break
             }
@@ -209,6 +201,5 @@ func deduplicateDomains(domains []string) []string {
             result = append(result, domain)
         }
     }
-
     return result
 }
