@@ -21,7 +21,7 @@ type RuleSet struct {
 
 var raws = []*Raw{
     {
-        Name:     "cn-ips",
+        Name:     "cncidr",
         Behavior: "ipcidr",
         SourceUrl: []string{
             "https://raw.githubusercontent.com/ChanthMiao/China-IPv4-List/release/cn.txt",
@@ -29,7 +29,7 @@ var raws = []*Raw{
         },
     },
     {
-        Name:     "local-ips",
+        Name:     "lancidr",
         Behavior: "ipcidr",
         SourceUrl: []string{
             "https://raw.githubusercontent.com/v2fly/geoip/release/text/private.txt",
@@ -62,6 +62,7 @@ var raws = []*Raw{
         Name:     "ad-max",
         Behavior: "domain",
         SourceUrl: []string{
+            "https://raw.githubusercontent.com/v2fly/domain-list-community/refs/heads/release/category-ads-all.txt",
             "https://raw.githubusercontent.com/gamesofts/clash-rules/refs/heads/master/adguard.txt",
         },
     },
