@@ -48,7 +48,7 @@ var raws = []*Raw{
         Behavior: "domain",
         SourceUrl: []string{
             "https://raw.githubusercontent.com/v2fly/domain-list-community/release/geolocation-!cn.txt",
-            "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Global/Global_Domain.yaml",
+            "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Global/Global_Domain.txt",
         },
     },
     {
