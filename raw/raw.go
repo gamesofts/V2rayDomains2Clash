@@ -76,13 +76,13 @@ func LoadRawSources() ([]*RuleSet, error) {
             }
 
             content, err := io.ReadAll(resp.Body)
+            resp.Body.Close()
             if err != nil {
                 return nil, fmt.Errorf("load %s from %s: %s", raw.Name, url, err.Error())
             }
 
-            _ = resp.Body.Close()
-
-            for _, line := range strings.Split(string(content), "\n") {
+            lines := strings.Split(string(content), "\n")
+            for _, line := range lines {
                 line = strings.TrimSpace(line)
                 if line == "" || strings.HasPrefix(line, "#") {
                     continue
@@ -91,72 +91,113 @@ func LoadRawSources() ([]*RuleSet, error) {
             }
         }
 
-        if raw.Behavior == "domain" {
-            // 去重，移除已包含父域名的子域名，并去除重复的域名
-            rules = deduplicateDomains(rules)
-
-            // 在行的起始拼接字符串
-            for i, line := range rules {
-                if strings.HasPrefix(line, ".") {
-                    rules[i] = "+" + line
-                } else {
-                    rules[i] = "+." + line
-                }
-            }
-
-            // 按字母顺序排序
-            sort.Strings(rules)
+        // Process rules based on behavior
+        var processedRules []string
+        switch raw.Behavior {
+        case "domain":
+            processedRules = processDomainRules(rules)
+        case "ipcidr":
+            processedRules = rules // No additional processing needed
+        default:
+            processedRules = rules
         }
 
         result = append(result, &RuleSet{
             Raw:   raw,
-            Rules: rules,
+            Rules: processedRules,
         })
     }
 
     return result, nil
 }
 
-func deduplicateDomains(domains []string) []string {
-    // 首先，移除完全相同的域名
-    uniqueDomainsMap := make(map[string]struct{})
-    for _, domain := range domains {
-        uniqueDomainsMap[domain] = struct{}{}
+func processDomainRules(rules []string) []string {
+    domainSet := make(map[string]struct{})
+    for _, line := range rules {
+        domain := processDomainLine(line)
+        if domain == "" {
+            continue
+        }
+        domainSet[domain] = struct{}{}
     }
 
-    // 将唯一域名转换回切片
-    uniqueDomains := make([]string, 0, len(uniqueDomainsMap))
-    for domain := range uniqueDomainsMap {
+    // Convert set to slice
+    uniqueDomains := make([]string, 0, len(domainSet))
+    for domain := range domainSet {
         uniqueDomains = append(uniqueDomains, domain)
     }
 
-    // 存储域名及其标签（按.分割）
-    domainLabels := make(map[string][]string)
-    for _, domain := range uniqueDomains {
-        labels := strings.Split(domain, ".")
-        domainLabels[domain] = labels
+    // Deduplicate domains by removing subdomains included in parent domains
+    deduplicatedDomains := deduplicateDomains(uniqueDomains)
+
+    // Prefix '+' or '+.'
+    for i, domain := range deduplicatedDomains {
+        if strings.HasPrefix(domain, ".") {
+            deduplicatedDomains[i] = "+" + domain
+        } else {
+            deduplicatedDomains[i] = "+." + domain
+        }
     }
 
-    // 按标签数量（域名层级）排序，层级少的在前
+    // Sort
+    sort.Strings(deduplicatedDomains)
+
+    return deduplicatedDomains
+}
+
+func processDomainLine(line string) string {
+    line = strings.TrimSpace(line)
+    if line == "" || strings.HasPrefix(line, "#") {
+        return ""
+    }
+    if strings.HasPrefix(line, "regexp:") {
+        // Ignore this line
+        return ""
+    }
+    // Remove prefixes like "domain:" and "full:"
+    for _, prefix := range []string{"domain:", "full:"} {
+        if strings.HasPrefix(line, prefix) {
+            line = strings.TrimPrefix(line, prefix)
+            break
+        }
+    }
+    // Remove suffixes starting with '@'
+    if idx := strings.Index(line, "@"); idx != -1 {
+        line = line[:idx]
+    }
+    line = strings.TrimSpace(line)
+    return line
+}
+
+func deduplicateDomains(domains []string) []string {
+    // First, remove exact duplicates
+    domainSet := make(map[string]struct{})
+    for _, domain := range domains {
+        domainSet[domain] = struct{}{}
+    }
+
+    // Convert set to slice
+    uniqueDomains := make([]string, 0, len(domainSet))
+    for domain := range domainSet {
+        uniqueDomains = append(uniqueDomains, domain)
+    }
+
+    // Sort domains by label count (fewest labels first)
     sort.Slice(uniqueDomains, func(i, j int) bool {
-        return len(domainLabels[uniqueDomains[i]]) < len(domainLabels[uniqueDomains[j]])
+        return len(strings.Split(uniqueDomains[i], ".")) < len(strings.Split(uniqueDomains[j], "."))
     })
 
-    included := make(map[string]struct{})
-    var result []string
-
+    // Deduplicate subdomains
+    result := []string{}
     for _, domain := range uniqueDomains {
-        labels := domainLabels[domain]
-        foundParent := false
-        for i := 1; i < len(labels); i++ {
-            parent := strings.Join(labels[i:], ".")
-            if _, ok := included[parent]; ok {
-                foundParent = true
+        include := true
+        for _, existing := range result {
+            if strings.HasSuffix(domain, "."+existing) || domain == existing {
+                include = false
                 break
             }
         }
-        if !foundParent {
-            included[domain] = struct{}{}
+        if include {
             result = append(result, domain)
         }
     }
