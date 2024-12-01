@@ -36,11 +36,19 @@ var raws = []*Raw{
         },
     },
     {
-        Name:     "cn-max",
+        Name:     "direct",
         Behavior: "domain",
         SourceUrl: []string{
-            "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/China/China_Domain.txt",
+            "https://raw.githubusercontent.com/v2fly/domain-list-community/release/cn.txt",
             "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ChinaMax/ChinaMax_Domain.txt",
+        },
+    },
+    {
+        Name:     "proxy",
+        Behavior: "domain",
+        SourceUrl: []string{
+            "https://raw.githubusercontent.com/v2fly/domain-list-community/release/geolocation-!cn.txt",
+            "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Global/Global_Domain.yaml",
         },
     },
     {
