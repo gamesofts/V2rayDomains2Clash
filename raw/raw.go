@@ -67,6 +67,13 @@ var raws = []*Raw{
             "https://raw.githubusercontent.com/gamesofts/clash-rules/refs/heads/master/adguard.txt",
         },
     },
+    {
+        Name:     "media",
+        Behavior: "domain",
+        SourceUrl: []string{
+            "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/GlobalMedia/GlobalMedia_Domain.txt",
+        },
+    },
 }
 
 func LoadRawSources() ([]*RuleSet, error) {
