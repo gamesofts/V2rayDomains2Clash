@@ -63,7 +63,7 @@ var raws = []*Raw{
         Name:     "adv",
         Behavior: "domain",
         SourceUrl: []string{
-            "https://raw.githubusercontent.com/gamesofts/clash-rules/master/adaway.txt",
+            "https://adaway.org/hosts.txt",
             "https://raw.githubusercontent.com/gamesofts/clash-rules/master/my-ad.txt",
         },
     },
@@ -164,11 +164,13 @@ func processDomainLine(line string) string {
         return ""
     }
     if strings.HasPrefix(line, "regexp:") {
-        // Ignore this line
+        return ""
+    }
+    if strings.Contains(line, "localhost") {
         return ""
     }
     // Remove prefixes like "domain:" and "full:"
-    for _, prefix := range []string{"domain:", "full:"} {
+    for _, prefix := range []string{"domain:", "full:", "127.0.0.1"} {
         if strings.HasPrefix(line, prefix) {
             line = strings.TrimPrefix(line, prefix)
             break
