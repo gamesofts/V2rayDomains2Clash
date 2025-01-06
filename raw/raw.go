@@ -64,7 +64,7 @@ var raws = []*Raw{
         Behavior: "domain",
         SourceUrl: []string{
             "https://raw.githubusercontent.com/gamesofts/clash-rules/master/adaway.txt",
-            "https://raw.githubusercontent.com/gamesofts/clash-rules/master/stevenblack.txt",
+            "https://raw.githubusercontent.com/gamesofts/clash-rules/master/vokins.txt",
         },
     },
     {
