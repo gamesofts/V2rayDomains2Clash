@@ -63,7 +63,7 @@ var raws = []*Raw{
         Name:     "adv",
         Behavior: "domain",
         SourceUrl: []string{
-            "https://adaway.org/hosts.txt",
+            "https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-hosts.txt",
             "https://raw.githubusercontent.com/gamesofts/clash-rules/master/my-ad.txt",
         },
     },
@@ -161,6 +161,9 @@ func processDomainRules(rules []string) []string {
 func processDomainLine(line string) string {
     line = strings.TrimSpace(line)
     if line == "" || strings.HasPrefix(line, "#") {
+        return ""
+    }
+    if line == "" || strings.HasPrefix(line, "!") {
         return ""
     }
     if strings.HasPrefix(line, "regexp:") {
