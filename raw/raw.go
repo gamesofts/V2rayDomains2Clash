@@ -63,7 +63,7 @@ var raws = []*Raw{
         Name:     "adv",
         Behavior: "domain",
         SourceUrl: []string{
-            "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/AdvertisingLite/AdvertisingLite_Domain.txt",
+            "https://raw.githubusercontent.com/gamesofts/clash-rules/master/adaway.txt",
         },
     },
     {
