@@ -46,10 +46,10 @@ var raws = []*Raw{
             "https://raw.githubusercontent.com/v2fly/domain-list-community/release/cn.txt",
             "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ChinaMax/ChinaMax_Domain.txt",
             "https://raw.githubusercontent.com/gamesofts/clash-rules/master/my-cn.txt",
+            "https://rules.gamesofts.net/global.yaml",
         },
         BlacklistUrl: []string{
-            "https://raw.githubusercontent.com/v2fly/domain-list-community/release/geolocation-!cn.txt",
-            "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Global/Global_Domain.txt",
+            "https://rules.gamesofts.net/proxy.yaml",
         },
     },
     {
@@ -58,6 +58,9 @@ var raws = []*Raw{
         SourceUrl: []string{
             "https://raw.githubusercontent.com/v2fly/domain-list-community/release/geolocation-!cn.txt",
             "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Global/Global_Domain.txt",
+        },
+        BlacklistUrl: []string{
+            "https://rules.gamesofts.net/global.yaml",
         },
     },
     {
@@ -199,22 +202,19 @@ func processDomainRules(rules []string) []string {
 // processDomainLine 处理单行域名规则，主要是去掉常见前缀/后缀、跳过特例等
 func processDomainLine(line string) string {
     line = strings.TrimSpace(line)
-    if line == "" || strings.HasPrefix(line, "#") {
+    if line == "") {
         return ""
     }
+    
     // 常见不处理的行
-    if strings.Contains(line, "!") {
-        return ""
-    }
-    if strings.Contains(line, "regexp:") {
-        return ""
-    }
-    if strings.Contains(line, "localhost") {
-        return ""
+    for _, igonre := range []string{ "#", "!", "regexp:", "localhost", "payload:"} {
+        if strings.Contains(line, igonre) {
+            return ""
+        }
     }
 
     // 去除常见的 "domain:"、"full:"、"127.0.0.1" 等前缀
-    for _, prefix := range []string{"domain:", "full:", "127.0.0.1"} {
+    for _, prefix := range []string{"domain:", "full:", "127.0.0.1", "  - \"+."} {
         if strings.HasPrefix(line, prefix) {
             line = strings.TrimPrefix(line, prefix)
             break
@@ -222,10 +222,13 @@ func processDomainLine(line string) string {
     }
 
     // 去除形如 "abc.com:@xxx" 的后缀信息
-    if idx := strings.Index(line, ":@"); idx != -1 {
-        line = line[:idx]
+    for _, suffix := range []string{":@", "\""} {
+         if idx := strings.Index(line, suffix); idx != -1 {
+            line = line[:idx]
+            break
+        }
     }
-
+    
     line = strings.TrimSpace(line)
     // 如果开头是 '.' 则去掉
     if strings.HasPrefix(line, ".") {
