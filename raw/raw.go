@@ -202,7 +202,7 @@ func processDomainRules(rules []string) []string {
 // processDomainLine 处理单行域名规则，主要是去掉常见前缀/后缀、跳过特例等
 func processDomainLine(line string) string {
     line = strings.TrimSpace(line)
-    if line == "") {
+    if (line == "") {
         return ""
     }
     
