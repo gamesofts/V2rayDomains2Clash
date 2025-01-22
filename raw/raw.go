@@ -46,10 +46,10 @@ var raws = []*Raw{
             "https://raw.githubusercontent.com/v2fly/domain-list-community/release/cn.txt",
             "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ChinaMax/ChinaMax_Domain.txt",
             "https://raw.githubusercontent.com/gamesofts/clash-rules/master/my-cn.txt",
-            "https://rules.gamesofts.net/global.yaml",
+            "https://raw.githubusercontent.com/gamesofts/V2rayDomains2Clash/generated/geolocation-!cn@cn.yaml",
         },
         BlacklistUrl: []string{
-            "https://rules.gamesofts.net/proxy.yaml",
+            "https://raw.githubusercontent.com/gamesofts/V2rayDomains2Clash/generated/proxy.yaml",
         },
     },
     {
@@ -60,7 +60,7 @@ var raws = []*Raw{
             "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Global/Global_Domain.txt",
         },
         BlacklistUrl: []string{
-            "https://rules.gamesofts.net/global.yaml",
+            "https://raw.githubusercontent.com/gamesofts/V2rayDomains2Clash/generated/geolocation-!cn@cn.yaml",
         },
     },
     {
