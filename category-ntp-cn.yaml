@@ -1,0 +1,7 @@
+payload:
+  - "+.cn.pool.ntp.org"
+  - "+.ntp.neu.edu.cn"
+  - "+.ntp.ntsc.ac.cn"
+  - "+.ntp.org.cn"
+  - "time.izatcloud.net"
+  - "time.xtracloud.net"
