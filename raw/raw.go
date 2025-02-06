@@ -214,7 +214,7 @@ func processDomainLine(line string) string {
     }
 
     // 去除常见的 "domain:"、"full:"、"127.0.0.1" 等前缀
-    for _, prefix := range []string{"domain:", "full:", "127.0.0.1", "- \"+."} {
+    for _, prefix := range []string{"domain:", "full:", "127.0.0.1", "- \"+.", "- \""} {
         if strings.HasPrefix(line, prefix) {
             line = strings.TrimPrefix(line, prefix)
             break
