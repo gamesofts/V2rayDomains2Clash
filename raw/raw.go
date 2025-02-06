@@ -45,7 +45,7 @@ var raws = []*Raw{
         SourceUrl: []string{
             "https://raw.githubusercontent.com/v2fly/domain-list-community/release/cn.txt",
             "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ChinaMax/ChinaMax_Domain.txt",
-            "https://raw.githubusercontent.com/gamesofts/V2rayDomains2Clash/generated/geolocation-!cn%40cn.yaml",
+            "https://raw.githubusercontent.com/gamesofts/V2rayDomains2Clash/generated/geolocation-!cn@cn.yaml",
             "https://raw.githubusercontent.com/gamesofts/clash-rules/master/my-cn.txt",
         },
     },
@@ -59,7 +59,7 @@ var raws = []*Raw{
         BlacklistUrl: []string{
             "https://raw.githubusercontent.com/v2fly/domain-list-community/release/cn.txt",
             "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ChinaMax/ChinaMax_Domain.txt",
-            "https://raw.githubusercontent.com/gamesofts/V2rayDomains2Clash/generated/geolocation-!cn%40cn.yaml",
+            "https://raw.githubusercontent.com/gamesofts/V2rayDomains2Clash/generated/geolocation-!cn@cn.yaml",
             "https://raw.githubusercontent.com/gamesofts/clash-rules/master/my-cn.txt",
         },
     },
@@ -214,7 +214,7 @@ func processDomainLine(line string) string {
     }
 
     // 去除常见的 "domain:"、"full:"、"127.0.0.1" 等前缀
-    for _, prefix := range []string{"domain:", "full:", "127.0.0.1", "  - \"+."} {
+    for _, prefix := range []string{"domain:", "full:", "127.0.0.1", "- \"+."} {
         if strings.HasPrefix(line, prefix) {
             line = strings.TrimPrefix(line, prefix)
             break
