@@ -223,8 +223,8 @@ func processDomainLine(line string) string {
 
     // 去除形如 "abc.com:@xxx" 的后缀信息
     for _, suffix := range []string{":@", "\""} {
-         if idx := strings.Index(line, suffix); idx != -1 {
-            line = line[:idx]
+         if strings.HasSuffix(line, suffix) {
+            line = strings.TrimSuffix(line, suffix)
             break
         }
     }
