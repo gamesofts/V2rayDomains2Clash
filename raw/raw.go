@@ -78,6 +78,7 @@ var raws = []*Raw{
         Name:     "adv",
         Behavior: "domain",
         SourceUrl: []string{
+            "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/AdvertisingLite/AdvertisingLite_Domain.txt",
             "https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-hosts.txt",
             "https://raw.githubusercontent.com/gamesofts/clash-rules/master/my-ad.txt",
         },
