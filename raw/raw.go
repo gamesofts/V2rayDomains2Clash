@@ -97,6 +97,13 @@ var raws = []*Raw{
             "https://raw.githubusercontent.com/gamesofts/clash-rules/master/unreachable.txt",
         },
     },
+    {
+        Name:     "apple-cert",
+        Behavior: "domain",
+        SourceUrl: []string{
+            "https://raw.githubusercontent.com/gamesofts/clash-rules/master/apple-cert.txt",
+        },
+    },
 }
 
 // LoadRawSources 读取 raws 中所有内容并做必要处理，返回最终的多个 RuleSet
