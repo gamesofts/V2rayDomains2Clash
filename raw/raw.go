@@ -30,6 +30,7 @@ var raws = []*Raw{
         SourceUrl: []string{
             "https://raw.githubusercontent.com/ChanthMiao/China-IPv4-List/release/cn.txt",
             "https://raw.githubusercontent.com/ChanthMiao/China-IPv6-List/release/cn6.txt",
+            "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/text/hk.txt",
         },
     },
     {
