@@ -4,16 +4,19 @@ import (
     "fmt"
     "io"
     "net/http"
+    neturl "net/url"
+    "path"
     "sort"
     "strings"
 )
 
 // Raw 表示原始规则信息
 type Raw struct {
-    Name         string
-    Behavior     string
-    SourceUrl    []string   // 来源URL列表
-    BlacklistUrl []string   // 黑名单URL列表（仅 Behavior=domain 时生效）
+    Name            string
+    Behavior        string
+    SourceUrl       []string // 普通来源URL列表
+    BlacklistUrl    []string // 黑名单URL列表（仅 Behavior=domain 时生效）
+    ForceIncludeUrl []string // 强制纳入URL列表（仅 Behavior=domain 时生效）
 }
 
 // RuleSet 表示最终处理后的规则集
@@ -46,10 +49,12 @@ var raws = []*Raw{
             "https://raw.githubusercontent.com/v2fly/domain-list-community/release/cn.txt",
             "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ChinaMax/ChinaMax_Domain.txt",
             "https://raw.githubusercontent.com/gamesofts/V2rayDomains2Clash/generated/geolocation-!cn@cn.yaml",
-            "https://raw.githubusercontent.com/gamesofts/clash-rules/master/my-cn.txt",
         },
         BlacklistUrl: []string{
             "https://raw.githubusercontent.com/gamesofts/clash-rules/master/my-proxy.txt",
+        },
+        ForceIncludeUrl: []string{
+            "https://raw.githubusercontent.com/gamesofts/clash-rules/master/my-cn.txt",
         },
     },
     {
@@ -58,13 +63,15 @@ var raws = []*Raw{
         SourceUrl: []string{
             "https://raw.githubusercontent.com/v2fly/domain-list-community/release/geolocation-!cn.txt",
             "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Global/Global_Domain.txt",
-            "https://raw.githubusercontent.com/gamesofts/clash-rules/master/my-proxy.txt",
         },
         BlacklistUrl: []string{
             "https://raw.githubusercontent.com/v2fly/domain-list-community/release/cn.txt",
             "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ChinaMax/ChinaMax_Domain.txt",
             "https://raw.githubusercontent.com/gamesofts/V2rayDomains2Clash/generated/geolocation-!cn@cn.yaml",
             "https://raw.githubusercontent.com/gamesofts/clash-rules/master/my-cn.txt",
+        },
+        ForceIncludeUrl: []string{
+            "https://raw.githubusercontent.com/gamesofts/clash-rules/master/my-proxy.txt",
         },
     },
     {
@@ -111,10 +118,12 @@ var raws = []*Raw{
             "https://raw.githubusercontent.com/v2fly/domain-list-community/release/cn.txt",
             "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ChinaMax/ChinaMax_Domain.txt",
             "https://raw.githubusercontent.com/gamesofts/V2rayDomains2Clash/generated/geolocation-!cn@cn.yaml",
-            "https://raw.githubusercontent.com/gamesofts/clash-rules/master/my-cn.txt",
         },
         BlacklistUrl: []string{
             "https://raw.githubusercontent.com/gamesofts/clash-rules/master/unreachable.txt",
+        },
+        ForceIncludeUrl: []string{
+            "https://raw.githubusercontent.com/gamesofts/clash-rules/master/my-cn.txt",
         },
     },
 }
@@ -124,13 +133,23 @@ func LoadRawSources() ([]*RuleSet, error) {
     var result []*RuleSet
 
     for _, raw := range raws {
-        // 1. 读取 SourceUrl 内容
-        sourceLines, err := loadLinesFromURLs(raw.Name, raw.SourceUrl)
+        sourceURLs := raw.SourceUrl
+        forceIncludeURLs := append([]string{}, raw.ForceIncludeUrl...)
+
+        // 对 domain 规则，自动把 SourceUrl 里 my-xxx 的地址提升为强制纳入
+        if raw.Behavior == "domain" {
+            var autoForceURLs []string
+            sourceURLs, autoForceURLs = splitForceIncludeURLs(raw.SourceUrl)
+            forceIncludeURLs = append(forceIncludeURLs, autoForceURLs...)
+        }
+
+        // 1. 读取普通 SourceUrl 内容
+        sourceLines, err := loadLinesFromURLs(raw.Name, sourceURLs)
         if err != nil {
             return nil, err
         }
-        
-        // 2. 如果 Behavior = domain，额外读取 BlacklistUrl 内容
+
+        // 2. 读取 BlacklistUrl 内容
         var blacklistLines []string
         if raw.Behavior == "domain" && len(raw.BlacklistUrl) > 0 {
             blacklistLines, err = loadLinesFromURLs(raw.Name, raw.BlacklistUrl)
@@ -139,28 +158,41 @@ func LoadRawSources() ([]*RuleSet, error) {
             }
         }
 
-        // 3. 根据不同 Behavior 做处理
+        // 3. 读取 ForceIncludeUrl 内容
+        var forceIncludeLines []string
+        if raw.Behavior == "domain" && len(forceIncludeURLs) > 0 {
+            forceIncludeLines, err = loadLinesFromURLs(raw.Name, forceIncludeURLs)
+            if err != nil {
+                return nil, err
+            }
+        }
+
+        // 4. 根据不同 Behavior 做处理
         var processedRules []string
         switch raw.Behavior {
         case "domain":
-            // 3.1 先处理 SourceUrl 得到域名规则
+            // 4.1 先处理普通来源
             processedRules = processDomainRules(sourceLines)
 
-            // 3.2 如果有 BlacklistUrl，则处理黑名单域名
+            // 4.2 再执行黑名单过滤
             if len(blacklistLines) > 0 {
                 blacklistedDomains := processDomainRules(blacklistLines)
                 processedRules = filterBlacklistedDomains(processedRules, blacklistedDomains)
             }
 
+            // 4.3 最后把强制纳入规则回补，确保不会被黑名单排除
+            if len(forceIncludeLines) > 0 {
+                forcedDomains := processDomainRules(forceIncludeLines)
+                processedRules = mergeForcedDomains(processedRules, forcedDomains)
+            }
+
         case "ipcidr":
-            // 这里示例不做其他特殊处理，直接使用原始 lines
             processedRules = sourceLines
 
         default:
             processedRules = sourceLines
         }
 
-        // 4. 生成 RuleSet
         rs := &RuleSet{
             Raw:   raw,
             Rules: processedRules,
@@ -330,4 +362,60 @@ func filterBlacklistedDomains(domains, blacklisted []string) []string {
         }
     }
     return filtered
+}
+
+// splitForceIncludeURLs 自动把 SourceUrl 中 my-xxx 格式的 URL 提取出来，作为强制纳入来源
+func splitForceIncludeURLs(urls []string) (normal []string, forced []string) {
+    for _, u := range urls {
+        if isMyRuleURL(u) {
+            forced = append(forced, u)
+        } else {
+            normal = append(normal, u)
+        }
+    }
+    return
+}
+
+// isMyRuleURL 判断 URL 文件名是否为 my-xxx 格式
+func isMyRuleURL(rawURL string) bool {
+    u, err := neturl.Parse(rawURL)
+    if err != nil {
+        return false
+    }
+
+    fileName := path.Base(u.Path)
+    return strings.HasPrefix(fileName, "my-")
+}
+
+// mergeForcedDomains 将强制纳入的域名重新合并回结果中，并重新做去重/去子域名/排序
+func mergeForcedDomains(domains, forced []string) []string {
+    domainSet := make(map[string]struct{})
+    merged := make([]string, 0, len(domains)+len(forced))
+
+    add := func(items []string) {
+        for _, d := range items {
+            d = strings.TrimPrefix(d, "+.")
+            if d == "" {
+                continue
+            }
+            if _, exists := domainSet[d]; exists {
+                continue
+            }
+            domainSet[d] = struct{}{}
+            merged = append(merged, d)
+        }
+    }
+
+    add(domains)
+    add(forced)
+
+    merged = deduplicateDomains(merged)
+
+    result := make([]string, 0, len(merged))
+    for _, d := range merged {
+        result = append(result, "+."+d)
+    }
+
+    sort.Strings(result)
+    return result
 }
